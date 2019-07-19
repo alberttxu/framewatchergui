@@ -1,0 +1,4 @@
+scratch/
+env/
+Dockerfile
+build_run.sh
