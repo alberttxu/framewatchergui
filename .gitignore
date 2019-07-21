@@ -1,4 +1,7 @@
+*.swp
 scratch/
 env/
 Dockerfile
 build_run.sh
+framewatchergui/*.swp
+framewatchergui/__pycache__/
