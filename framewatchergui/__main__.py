@@ -1,7 +1,8 @@
 import traceback
-from gui import initGUI
-from run import start_shipper, start_worker, stop_processes
-from log import LogWindowWriter
+
+from framewatchergui.gui import initGUI
+from framewatchergui.run import start_shipper, start_worker, stop_processes
+from framewatchergui.log import LogWindowWriter
 
 
 def main():
@@ -38,6 +39,20 @@ def main():
                         window.Element("Start").Update(disabled=False)
                         window.Element("Stop").Update(disabled=True)
                         continue
+
+                    tmp_not_specified = False
+                    for i in range(1, 4):
+                        if values[f"w{i}_enabled"]:
+                            if not values[f"tmp{i}"].strip():
+                                print(
+                                    f"temp directory for worker {i} must be specified"
+                                )
+                                tmp_not_specified = True
+                    if tmp_not_specified:
+                        window.Element("Start").Update(disabled=False)
+                        window.Element("Stop").Update(disabled=True)
+                        continue
+
                     shipper_pr_dirs = []
                     output_dir = values["Output Directory"]
                     binning = values["binning"]
@@ -45,6 +60,7 @@ def main():
                     thumb = values["thumb"]
                     dtotal = values["dtotal"]
                     volt = values["volt"]
+
                     for i in range(1, 4):
                         if values[f"w{i}_enabled"]:
                             tmp = values[f"tmp{i}"]

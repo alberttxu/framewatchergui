@@ -16,9 +16,11 @@ def monitor_output(process, outputfile):
 
 def run_framewatcher_shipper(watch_dir, *pr_dirs):
     args = ["-nocom"]
+    watch_dir = watch_dir.strip()
     if watch_dir:
         args += ["-w", watch_dir]
     for pr_dir in pr_dirs:
+        pr_dir = pr_dir.strip()
         if pr_dir:
             args += ["-pr", pr_dir]
     print("Shipper command: framewatcher " + " ".join(args))
@@ -37,6 +39,17 @@ def run_framewatcher_worker(
     num_threads,
     volt,
 ):
+    watch_dir = watch_dir.strip()
+    binning = binning.strip()
+    power = power.strip()
+    processed_dir = processed_dir.strip()
+    output = output.strip()
+    thumb = thumb.strip()
+    dtotal = dtotal.strip()
+    gpu_id = gpu_id.strip()
+    num_threads = num_threads.strip()
+    volt = volt.strip()
+
     args = []
     if watch_dir:
         args += ["-w", watch_dir]
