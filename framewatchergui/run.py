@@ -8,18 +8,20 @@ def monitor_output(process, outputfile):
     try:
         while True:
             char = process.read_nonblocking(timeout=None)
-            # print(bytes(char, 'utf-8'), end=' ')
             if char != "\r":
                 print(char, end="", file=outputfile)
     except pexpect.EOF:
-        print(f"stopping thread running {process.pid}")
+        print(f"Stopping thread running {process.pid}")
 
 
-def run_framewatcher_shipper(watch_dir, *dest_dirs):
-    args = ["-nocom", "-w", watch_dir]
-    for dest_dir in dest_dirs:
-        args += ["-pr", dest_dir]
-    print("shipper command: framewatcher " + " ".join(args))
+def run_framewatcher_shipper(watch_dir, *pr_dirs):
+    args = ["-nocom"]
+    if watch_dir:
+        args += ["-w", watch_dir]
+    for pr_dir in pr_dirs:
+        if pr_dir:
+            args += ["-pr", pr_dir]
+    print("Shipper command: framewatcher " + " ".join(args))
     return pexpect.spawn("framewatcher", args, encoding="utf-8")
 
 
@@ -27,59 +29,64 @@ def run_framewatcher_worker(
     watch_dir,
     binning,
     power,
-    processed,
+    processed_dir,
     output,
     thumb,
     dtotal,
-    gpu,
-    threads,
+    gpu_id,
+    num_threads,
     volt,
 ):
-    args = [
-        "-w",
-        watch_dir,
-        "-bin",
-        binning,
-        "-po",
-        power,
-        "-pr",
-        processed,
-        "-o",
-        output,
-        "-thumb",
-        thumb,
-        "-dtotal",
-        dtotal,
-        "-gpu",
-        gpu,
-        "-thr",
-        threads,
-        "-volt",
-        volt,
-    ]
+    args = []
+    if watch_dir:
+        args += ["-w", watch_dir]
+    if binning:
+        args += ["-bin", binning]
+    if power:
+        args += ["-po", power]
+    if processed_dir:
+        args += ["-pr", processed_dir]
+    if output:
+        args += ["-o", output]
+    if thumb:
+        args += ["-thumb", thumb]
+    if dtotal:
+        args += ["-dtotal", dtotal]
+    if gpu_id:
+        args += ["-gpu", gpu_id]
+    if num_threads:
+        args += ["-thr", num_threads]
+    if volt:
+        args += ["-volt", volt]
 
-    print("worker command: framewatcher " + " ".join(args))
+    print("Worker command: framewatcher " + " ".join(args))
     return pexpect.spawn("framewatcher", args, encoding="utf-8")
 
 
-def start_shipper(log):
-    shipper = run_framewatcher_shipper("/tmp", "/tmp/tmp2")
+def start_shipper(log, watch_dir, *pr_dirs):
+    shipper = run_framewatcher_shipper(watch_dir, *pr_dirs)
 
     shipper_thread = threading.Thread(
         target=monitor_output, args=(shipper, log), daemon=True
     )
     shipper_thread.start()
-    print(f"started shipper, id = {shipper.pid}")
+    print(f"Started shipper, id = {shipper.pid}")
     return shipper
 
 
-def start_worker(log):
-    worker = run_framewatcher_worker(
-        "/tmp", "2", "1024", "/tmp", "/tmp", "/tmp", "45", "-1", "1", "300"
-    )
+def start_worker(log, *framewatcher_args):
+    worker = run_framewatcher_worker(*framewatcher_args)
     worker_thread = threading.Thread(
         target=monitor_output, args=(worker, log), daemon=True
     )
     worker_thread.start()
-    print(f"started worker, id = {worker.pid}")
+    print(f"Started worker, id = {worker.pid}")
     return worker
+
+
+def stop_processes(processes):
+    for process in processes:
+        try:
+            process.send(chr(3))  # ctrl-c
+        except OSError:
+            process.terminate()
