@@ -1,5 +1,8 @@
 *.swp
 scratch/
+build/
+dist/
+framewatchergui.egg-info/
 env/
 Dockerfile
 build_run.sh

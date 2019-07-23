@@ -2,7 +2,7 @@ import traceback
 
 from framewatchergui.gui import initGUI
 from framewatchergui.run import start_shipper, start_worker, stop_processes
-from framewatchergui.log import LogWindowWriter
+from framewatchergui.log import LogWindowWriter, print_to_log
 
 
 def main():
@@ -18,6 +18,7 @@ def main():
 
             elif event == "Start":
                 print("Starting framewatcher session")
+                print_to_log(window, "gui_log", "Starting framewatcher session")
                 window.Element("Start").Update(disabled=True)
                 window.Element("Stop").Update(disabled=False)
 
@@ -25,12 +26,15 @@ def main():
                 final_processed_dir = values["Processed Directory"]
                 if not final_processed_dir.strip():
                     print("Processed Directory field cannot be empty")
+                    print_to_log(
+                        window, "gui_log", "Processed Directory field cannot be empty"
+                    )
                     window.Element("Start").Update(disabled=False)
                     window.Element("Stop").Update(disabled=True)
                     continue
 
+                worker_processes = []
                 if values["align"]:
-                    worker_processes = []
                     if not any(
                         [
                             values["w1_enabled"],
@@ -40,6 +44,11 @@ def main():
                     ):
                         print(
                             "At least one worker must be enabled in order to start aligning"
+                        )
+                        print_to_log(
+                            window,
+                            "gui_log",
+                            "At least one worker must be enabled in order to start aligning",
                         )
                         window.Element("Start").Update(disabled=False)
                         window.Element("Stop").Update(disabled=True)
@@ -51,6 +60,11 @@ def main():
                             if not values[f"tmp{i}"].strip():
                                 print(
                                     f"temp directory for worker {i} must be specified"
+                                )
+                                print_to_log(
+                                    window,
+                                    "gui_log",
+                                    f"temp directory for worker {i} must be specified",
                                 )
                                 tmp_not_specified = True
                     if tmp_not_specified:
@@ -90,6 +104,12 @@ def main():
                             except OSError:
                                 os_error = True
                                 break
+                            print_to_log(
+                                window,
+                                "gui_log",
+                                f"Worker {i} command: framewatcher "
+                                + " ".join(bstr.decode() for bstr in worker.args[1:]),
+                            )
                             for _ in range(int(values[f"w{i}_multiplier"])):
                                 shipper_pr_dirs.append(tmp)
                             worker_processes.append(worker)
@@ -108,10 +128,17 @@ def main():
                     window.Element("Start").Update(disabled=False)
                     window.Element("Stop").Update(disabled=True)
                     continue
+                print_to_log(
+                    window,
+                    "gui_log",
+                    "Shipper command: framewatcher "
+                    + " ".join(bstr.decode() for bstr in shipper.args[1:]),
+                )
                 status = "started"
 
             elif event == "Stop":
                 print("Stopping session")
+                print_to_log(window, "gui_log", "Stopping session")
                 window.Element("Start").Update(disabled=False)
                 window.Element("Stop").Update(disabled=True)
                 stop_processes([shipper] + worker_processes)
