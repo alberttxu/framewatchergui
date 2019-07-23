@@ -110,7 +110,7 @@ def initGUI():
                 layout=[
                     [
                         sg.Multiline(
-                            size=(120, 5),
+                            size=(None, 5),
                             autoscroll=True,
                             font=("Arial 12"),
                             key="gui_log",
@@ -143,11 +143,11 @@ def initGUI():
             sg.Button("Close", font=("Arial 16"), key="Close"),
         ],
         [
-            sg.Text("Shipper", size=(40, 1), justification="center", font=("Arial 16")),
+            sg.Text("Shipper", size=(32, 1), justification="center", font=("Arial 16")),
             *[
                 sg.Text(
                     f"Worker {i}",
-                    size=(40, 1),
+                    size=(32, 1),
                     justification="center",
                     font=("Arial 16"),
                 )
@@ -155,13 +155,9 @@ def initGUI():
             ],
         ],
         [
-            sg.Multiline(
-                size=(36, 5), autoscroll=True, font=("Arial 12"), key="shipper_log"
-            ),
+            sg.Multiline(autoscroll=True, font=("Arial 12"), key="shipper_log"),
             *[
-                sg.Multiline(
-                    size=(36, 5), autoscroll=True, font=("Arial 12"), key=f"w{i}_log"
-                )
+                sg.Multiline(autoscroll=True, font=("Arial 12"), key=f"w{i}_log")
                 for i in range(1, 4)
             ],
         ],
