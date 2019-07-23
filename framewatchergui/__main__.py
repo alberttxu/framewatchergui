@@ -23,6 +23,11 @@ def main():
 
                 watch_dir = values["Watch Directory"]
                 final_processed_dir = values["Processed Directory"]
+                if not final_processed_dir.strip():
+                    print("Processed Directory field cannot be empty")
+                    window.Element("Start").Update(disabled=False)
+                    window.Element("Stop").Update(disabled=True)
+                    continue
 
                 if values["align"]:
                     worker_processes = []
@@ -61,34 +66,48 @@ def main():
                     dtotal = values["dtotal"]
                     volt = values["volt"]
 
+                    os_error = False
                     for i in range(1, 4):
                         if values[f"w{i}_enabled"]:
                             tmp = values[f"tmp{i}"]
                             gpu = values[f"w{i}_gpu"]
                             thr = values[f"w{i}_threads"]
                             worker_log = LogWindowWriter(window, f"w{i}_log")
-                            worker = start_worker(
-                                worker_log,
-                                tmp,
-                                binning,
-                                power,
-                                final_processed_dir,
-                                output_dir,
-                                thumb,
-                                dtotal,
-                                gpu,
-                                thr,
-                                volt,
-                            )
+                            try:
+                                worker = start_worker(
+                                    worker_log,
+                                    tmp,
+                                    binning,
+                                    power,
+                                    final_processed_dir,
+                                    output_dir,
+                                    thumb,
+                                    dtotal,
+                                    gpu,
+                                    thr,
+                                    volt,
+                                )
+                            except OSError:
+                                os_error = True
+                                break
                             for _ in range(int(values[f"w{i}_multiplier"])):
                                 shipper_pr_dirs.append(tmp)
                             worker_processes.append(worker)
+                    if os_error:
+                        window.Element("Start").Update(disabled=False)
+                        window.Element("Stop").Update(disabled=True)
+                        continue
+
                 else:
-                    pass
                     shipper_pr_dirs = [final_processed_dir]
 
                 shipper_log = LogWindowWriter(window, "shipper_log")
-                shipper = start_shipper(shipper_log, watch_dir, *shipper_pr_dirs)
+                try:
+                    shipper = start_shipper(shipper_log, watch_dir, *shipper_pr_dirs)
+                except OSError:
+                    window.Element("Start").Update(disabled=False)
+                    window.Element("Stop").Update(disabled=True)
+                    continue
                 status = "started"
 
             elif event == "Stop":
@@ -110,6 +129,7 @@ def main():
             stop_processes([shipper] + worker_processes)
         print("Received keyboard interrupt; closing")
     except Exception as e:
+        print("Other exception occured")
         print(e)
         print(traceback.format_exc())
         if status == "started":
