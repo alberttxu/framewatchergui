@@ -15,18 +15,6 @@ def check_and_create_dir(directory):
         except PermissionError:
             print(f"Encountered permission error trying to create {directory}")
             raise OSError
-    else:
-        # need to also check execute bit in order to write into directory
-        # https://stackoverflow.com/a/2113511
-        os_error = False
-        if not os.access(directory, os.W_OK | os.X_OK):
-            print(f"{directory} does not have write permission")
-            os_error = True
-        if not os.access(directory, os.R_OK):
-            print(f"{directory} does not have read permission")
-            os_error = True
-        if os_error:
-            raise OSError
 
 
 def run_framewatcher_shipper(watch_dir, *pr_dirs):
