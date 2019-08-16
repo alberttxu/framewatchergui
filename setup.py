@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="framewatchergui",
-    version="0.0.2",
+    version="0.0.3",
     description="",
     url="https://github.com/alberttxu/framewatchergui",
     author="Albert Xu",
