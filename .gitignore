@@ -8,3 +8,5 @@ Dockerfile
 build_run.sh
 framewatchergui/*.swp
 framewatchergui/__pycache__/
+.vagrant/
+Vagrantfile
