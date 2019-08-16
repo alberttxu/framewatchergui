@@ -17,7 +17,7 @@ Centos 7
 Windows
 
 - Download the Cygwin [setup-x86_64.exe](https://cygwin.com/setup-x86_64.exe) installer
-- Download this repository's [cygwin_dependencies.bat](https://raw.githack.com/alberttxu/framewatchergui/master/cygwin_install_scripts/cygwin_dependencies.bat) into the same folder.
+- Download this repository's [cygwin_dependencies.bat](https://raw.githack.com/alberttxu/framewatchergui/master/cygwin_dependencies.bat) into the same folder.
 - Double click the cygwin_dependencies.bat file to start the installer. Continue clicking next until the installation is finished.
 	> If a Cygwin installation already exists at C:\cygwin64, this will add the dependencies and not overwrite any packages.
 - Download and install [VcXsrv](https://sourceforge.net/projects/vcxsrv/) Windows X Server
